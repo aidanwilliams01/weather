@@ -67,10 +67,16 @@ function printWeather(apiResponse, location) {
 }
 
 function printFutureWeather(apiResponse) {
-  let dateTime =  new Date((apiResponse.list[1].dt) * 1000);
-  // dateTime = `${dateTime.getUTCHours()}${dateTime.getUTCMinutes()}`;
-  document.querySelector('#showFutureWeather').innerText = `Twelve-hour forecast:
-  ${dateTime}`;
+  let output = '';
+  for (let index = 0; index < 8; index++) {
+    let dateTime =  new Date((apiResponse.list[index].dt_txt));
+    dateTime = dateTime.valueOf() + (apiResponse.city.timezone * 1000);
+    dateTime = new Date(dateTime).toTimeString();
+    dateTime = dateTime.slice(0, 5);
+    output = `${output}
+    ${dateTime} - ${apiResponse.list[index].weather[0].description}, ${apiResponse.list[index].main.temp} degrees`;
+  }
+  document.querySelector('#showFutureWeather').innerText = `24-hour forecast: ${output}`;
 }
 
 function handleFormSubmission(event) {
