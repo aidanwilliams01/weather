@@ -1,6 +1,6 @@
-# (Application Name)
+# Weather
 
-#### (Brief Description of Application)
+#### A basic weather application.
 
 #### By Aidan Williams
 
@@ -12,14 +12,18 @@
 * _Node Package Manager_
 * _webpack_
 * _ESLint_
-* _Jest_
-* _Babel_
 
 ## Description
+
+A website that allows users to search for a location's current weather and 24-hour forecast.
 
 ## Setup/Installation Requirements
 
 * _Clone this repository to your desktop._
+* _Create a file named '.env' in the top level of the directory._
+* _Sign in or create an account at https://openweathermap.org/._
+* _Copy the API key at https://home.openweathermap.org/api_keys and place it in your .env file using the following format (without brackets):_ 
+  * _`API_KEY=[your API key here]`_
 * _Run the following commands in the top level of the directory._
   * _`$ npm install` to install packages_
   * _`$ npm run build` to build the project using webpack_
@@ -28,12 +32,10 @@
 * Other commands:
   * _To build the project and start a development server, run `$ npm run start`._
   * _To lint Javascript files, run `$ npm run lint`._
-  * _To view code testing with Jest, run `$ npm run test`._
 
 ## Known Bugs
 
-* _Any known issues_
-* _should go here_
+* No known bugs.
 
 ## License
 
