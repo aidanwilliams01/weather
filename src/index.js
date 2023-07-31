@@ -59,7 +59,14 @@ function printError(request, apiResponse, location) {
 }
 
 function printWeather(apiResponse, location) {
-  document.querySelector('#showResponse').innerText = `The weather in ${location} is '${apiResponse.weather[0].description}'.
+  let dateTime =  new Date();
+  let offset = dateTime.getTimezoneOffset();
+  dateTime = dateTime.valueOf() + (offset * 60 * 1000) + (apiResponse.timezone * 1000);
+  dateTime = new Date(dateTime).toTimeString();
+  dateTime = dateTime.slice(0, 5);
+  document.querySelector('#showResponse').innerText = 
+  `The current time in ${location} is ${dateTime}.
+  The weather is '${apiResponse.weather[0].description}'.
   The humidity is ${apiResponse.main.humidity}%.
   The temperature in Fahrenheit is ${apiResponse.main.temp} degrees.
   The feels-like temperature in Fahrenheit is ${apiResponse.main.feels_like} degrees.
