@@ -56,6 +56,7 @@ function getFutureWeather(location) {
 
 function printError(request, apiResponse, location) {
   document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${location}: ${request.status} ${request.statusText}: ${apiResponse.message}`;
+  document.querySelector('#showFutureWeather').innerText = '';
 }
 
 function printWeather(apiResponse, location) {
