@@ -6,54 +6,60 @@ import WeatherService from './weather-service.js';
 // Business Logic
 
 function getWeather(location) {
-  let promise = WeatherService.getWeather(location);
-  promise.then(function(weatherDataArray) {
-    printWeather(weatherDataArray);
-  }, function(errorArray) {
-    printError(errorArray);
-  });
+  WeatherService.getWeather(location)
+    .then(function(response) {
+      if (response.main) {
+        printWeather(response, location);
+      } 
+      else {
+        printError(response, location);
+      }
+    });
 }
 
 function getFutureWeather(location) {
-  let promise = WeatherService.getFutureWeather(location);
-  promise.then(function(weatherDataArray) {
-    printFutureWeather(weatherDataArray);
-  }, function(errorArray) {
-    printError(errorArray);
-  });
+  WeatherService.getFutureWeather(location)
+    .then(function(response) {
+      if (response.list) {
+        printFutureWeather(response);
+      } 
+      else {
+        printError(response, location);
+      }
+    });
 }
 
 // UI Logic
 
-function printError(error) {
-  document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${error[2]}: ${error[0].status} ${error[0].statusText}: ${error[1].message}`;
+function printError(error, location) {
+  document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${location}: ${error}.`;
   document.querySelector('#showFutureWeather').innerText = '';
 }
 
-function printWeather(data) {
+function printWeather(response, location) {
   let dateTime =  new Date();
   let offset = dateTime.getTimezoneOffset();
-  dateTime = dateTime.valueOf() + (offset * 60 * 1000) + (data[0].timezone * 1000);
+  dateTime = dateTime.valueOf() + (offset * 60 * 1000) + (response.timezone * 1000);
   dateTime = new Date(dateTime).toTimeString();
   dateTime = dateTime.slice(0, 5);
   document.querySelector('#showResponse').innerText = 
-  `The current time in ${data[1]} is ${dateTime}.
-  The weather is '${data[0].weather[0].description}'.
-  The humidity is ${data[0].main.humidity}%.
-  The temperature in Fahrenheit is ${data[0].main.temp} degrees.
-  The feels-like temperature in Fahrenheit is ${data[0].main.feels_like} degrees.
-  The wind speed is ${data[0].wind.speed} miles/hour.`;
+  `The current time in ${location} is ${dateTime}.
+  The weather is '${response.weather[0].description}'.
+  The humidity is ${response.main.humidity}%.
+  The temperature in Fahrenheit is ${response.main.temp} degrees.
+  The feels-like temperature in Fahrenheit is ${response.main.feels_like} degrees.
+  The wind speed is ${response.wind.speed} miles/hour.`;
 }
 
-function printFutureWeather(data) {
+function printFutureWeather(response) {
   let output = '';
   for (let index = 0; index < 8; index++) {
-    let dateTime =  new Date((data[0].list[index].dt_txt));
-    dateTime = dateTime.valueOf() + (data[0].city.timezone * 1000);
+    let dateTime =  new Date((response.list[index].dt_txt));
+    dateTime = dateTime.valueOf() + (response.city.timezone * 1000);
     dateTime = new Date(dateTime).toTimeString();
     dateTime = dateTime.slice(0, 5);
     output = `${output}
-    ${dateTime} - ${data[0].list[index].weather[0].description}, ${data[0].list[index].main.temp} degrees`;
+    ${dateTime} - ${response.list[index].weather[0].description}, ${response.list[index].main.temp} degrees`;
   }
   document.querySelector('#showFutureWeather').innerText = `24-hour forecast: ${output}`;
 }
