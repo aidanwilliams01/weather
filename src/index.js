@@ -5,28 +5,24 @@ import WeatherService from './weather-service.js';
 
 // Business Logic
 
-function getWeather(location) {
-  WeatherService.getWeather(location)
-    .then(function(response) {
-      if (response.main) {
-        printWeather(response, location);
-      } 
-      else {
-        printError(response, location);
-      }
-    });
+async function getWeather(location) {
+  const response = await WeatherService.getWeather(location);
+  if (response.main) {
+    printWeather(response, location);
+  } 
+  else {
+    printError(response, location);
+  }
 }
 
-function getFutureWeather(location) {
-  WeatherService.getFutureWeather(location)
-    .then(function(response) {
-      if (response.list) {
-        printFutureWeather(response);
-      } 
-      else {
-        printError(response, location);
-      }
-    });
+async function getFutureWeather(location) {
+  const response = await WeatherService.getFutureWeather(location);
+  if (response.list) {
+    printFutureWeather(response);
+  } 
+  else {
+    printError(response, location);
+  }
 }
 
 // UI Logic
