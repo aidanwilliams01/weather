@@ -1,35 +1,50 @@
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/styles.css';
-import WeatherService from './weather-service.js';
+import WeatherService from './services/weather-service.js';
+import GiphyService from './services/giphy-service';
 
 // Business Logic
 
-async function getWeather(location) {
-  const response = await WeatherService.getWeather(location);
-  if (response.main) {
-    printWeather(response, location);
-  } 
-  else {
-    printError(response, location);
-  }
+function getAPIData(location) {
+  WeatherService.getWeather(location)
+    .then(function(weatherResponse) {
+      if (weatherResponse instanceof Error) {
+        const errorMessage = `there was a problem accessing the weather data from OpenWeather API for ${location}: 
+        ${weatherResponse.message}`;
+        throw new Error(errorMessage);
+      }
+      const description = weatherResponse.weather[0].description;
+      printWeather(weatherResponse, location);
+      return GiphyService.getGif(description);
+    })
+    .then(function(giphyResponse) {
+      if (giphyResponse instanceof Error) {
+        const errorMessage = `there was a problem accessing the gif data from Giphy API:
+        ${giphyResponse.message}.`;
+        throw new Error(errorMessage);
+      }
+      displayGif(giphyResponse, location);
+    })
+    .catch(function(error) {
+      printError(error);
+    });
 }
 
-async function getFutureWeather(location) {
-  const response = await WeatherService.getFutureWeather(location);
-  if (response.list) {
-    printFutureWeather(response);
-  } 
-  else {
-    printError(response, location);
-  }
-}
+// async function getFutureWeather(location) {
+//   const response = await WeatherService.getFutureWeather(location);
+//   if (response.list) {
+//     printFutureWeather(response);
+//   } 
+//   else {
+//     printError(response, location);
+//   }
+// }
 
 // UI Logic
 
-function printError(error, location) {
-  document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${location}: ${error}.`;
-  document.querySelector('#showFutureWeather').innerText = '';
+function printError(error) {
+  document.querySelector('#error').innerText = error;
 }
 
 function printWeather(response, location) {
@@ -47,25 +62,39 @@ function printWeather(response, location) {
   The wind speed is ${response.wind.speed} miles/hour.`;
 }
 
-function printFutureWeather(response) {
-  let output = '';
-  for (let index = 0; index < 8; index++) {
-    let dateTime =  new Date((response.list[index].dt_txt));
-    dateTime = dateTime.valueOf() + (response.city.timezone * 1000);
-    dateTime = new Date(dateTime).toTimeString();
-    dateTime = dateTime.slice(0, 5);
-    output = `${output}
-    ${dateTime} - ${response.list[index].weather[0].description}, ${response.list[index].main.temp} degrees`;
-  }
-  document.querySelector('#showFutureWeather').innerText = `24-hour forecast: ${output}`;
+function displayGif(response, city) {
+  const url = response.data[0].images.downsized.url;
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = `${city} weather`;
+  document.querySelector('#gif').append(img);
 }
+
+function clearResults() {
+  document.querySelector('#gif').innerText = null;
+  document.querySelector('#error').innerText = null;
+  document.querySelector('#showResponse').innerText = null;
+}
+
+// function printFutureWeather(response) {
+//   let output = '';
+//   for (let index = 0; index < 8; index++) {
+//     let dateTime =  new Date((response.list[index].dt_txt));
+//     dateTime = dateTime.valueOf() + (response.city.timezone * 1000);
+//     dateTime = new Date(dateTime).toTimeString();
+//     dateTime = dateTime.slice(0, 5);
+//     output = `${output}
+//     ${dateTime} - ${response.list[index].weather[0].description}, ${response.list[index].main.temp} degrees`;
+//   }
+//   document.querySelector('#showFutureWeather').innerText = `24-hour forecast: ${output}`;
+// }
 
 function handleFormSubmission(event) {
   event.preventDefault();
+  clearResults();
   const location = document.querySelector('#location').value;
   document.querySelector('#location').value = null;
-  getWeather(location);
-  getFutureWeather(location);
+  getAPIData(location);
 }
 
 window.addEventListener("load", function() {
